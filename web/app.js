@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.2.1";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.2.3";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -9,6 +9,8 @@ const app = document.getElementById("app");
 let editMode = false;            // global UI flag — toggled from Home
 let editingItemId = null;        // when set, that row renders an inline textarea instead of static text
 let addingInGroup = null;        // { sectionKey, groupTitle } — group with an open "+ Add item" textarea
+let confirmingActionId = null;   // id of a destructive action mid-confirm (item id for delete, "reset-all" for reset)
+let confirmingTimer = null;      // timeout handle that reverts the confirm state
 
 // Register service worker (silent on file://, or when sw.js missing)
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
@@ -164,6 +166,23 @@ function resetAllEdits() {
   localStorage.removeItem(EDITS_KEY);
 }
 
+function armConfirm(id) {
+  confirmingActionId = id;
+  if (confirmingTimer) clearTimeout(confirmingTimer);
+  confirmingTimer = setTimeout(() => {
+    if (confirmingActionId === id) {
+      confirmingActionId = null;
+      confirmingTimer = null;
+      if (currentRender) currentRender();
+    }
+  }, 3000);
+}
+
+function clearConfirm() {
+  confirmingActionId = null;
+  if (confirmingTimer) { clearTimeout(confirmingTimer); confirmingTimer = null; }
+}
+
 // ---------- Render helpers ----------
 
 function el(tag, attrs = {}, ...kids) {
@@ -202,6 +221,7 @@ function renderHome() {
   editMode = false;                 // always start fresh on Home
   editingItemId = null;
   addingInGroup = null;
+  clearConfirm();
   app.append(header("Bridge Habit Map"));
 
   const stat = recentCompletionPct(7);
@@ -280,15 +300,7 @@ function renderEditor(role) {
 
   app.append(
     el("div", { class: "actions" },
-      el("button", {
-        class: "btn btn-ghost",
-        onclick: () => {
-          if (confirm("Reset ALL edits back to the seeded checklists? Cannot undo.")) {
-            resetAllEdits();
-            currentRender();
-          }
-        }
-      }, "Reset all edits"),
+      renderResetAllButton(),
       el("button", { class: "btn btn-primary", onclick: () => { editMode = false; renderHome(); } }, "Done")
     )
   );
@@ -433,15 +445,7 @@ function renderItem(sectionKey, groupTitle, item) {
             currentRender();
           }
         }, "✎"),
-        el("button", { class: "edit-btn edit-btn-del", title: "Delete", "aria-label": "Delete item",
-          onclick: (e) => {
-            e.stopPropagation();
-            if (confirm("Delete this item?")) {
-              deleteItem(sectionKey, groupTitle, item.id);
-              currentRender();
-            }
-          }
-        }, "✕"),
+        renderDeleteButton(sectionKey, groupTitle, item.id),
       )
     );
   }
@@ -453,6 +457,42 @@ function renderItem(sectionKey, groupTitle, item) {
     el("div", { class: "tick" }),
     el("div", { class: "item-text" }, item.text)
   );
+}
+
+function renderResetAllButton() {
+  const armed = confirmingActionId === "reset-all";
+  return el("button", {
+    class: "btn btn-ghost" + (armed ? " btn-armed" : ""),
+    onclick: () => {
+      if (armed) {
+        clearConfirm();
+        resetAllEdits();
+        currentRender();
+      } else {
+        armConfirm("reset-all");
+        currentRender();
+      }
+    }
+  }, armed ? "Tap again to reset" : "Reset all edits");
+}
+
+function renderDeleteButton(sectionKey, groupTitle, itemId) {
+  const armed = confirmingActionId === itemId;
+  return el("button", {
+    class: "edit-btn edit-btn-del" + (armed ? " edit-btn-armed" : ""),
+    title: armed ? "Tap again to confirm" : "Delete",
+    "aria-label": armed ? "Confirm delete" : "Delete item",
+    onclick: (e) => {
+      e.stopPropagation();
+      if (armed) {
+        clearConfirm();
+        deleteItem(sectionKey, groupTitle, itemId);
+      } else {
+        armConfirm(itemId);
+      }
+      currentRender();
+    }
+  }, armed ? "Confirm?" : "✕");
 }
 
 function renderInlineEditor(sectionKey, groupTitle, item) {

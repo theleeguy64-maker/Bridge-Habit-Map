@@ -10,6 +10,8 @@
 ## What It Does
 Single-user PWA for building the habit of running a fixed mental checklist on every bridge hand. Two process sheets — **Declarer** and **Defender** — each have a shared Auction phase followed by an Analysis phase (pre-trick-1 plan). User taps through items at the table; app logs completion % per hand. Pure local-first: no backend, no accounts, history in `localStorage`.
 
+A built-in **editor** ("Edit Declarer sheet" / "Edit Defender sheet" on Home) lets the user move / edit / delete / add items per group. Edits are stored as patches in `localStorage["bhm.edits.v1"]` and applied over the seeded `web/checklists.js` at render time — so the seeded source is never mutated and a "Reset all edits" wipes back to it in one tap.
+
 ## Quick Start
 ```bash
 cd "/Users/leeguy/Bridge Habit Map"
@@ -32,7 +34,7 @@ Built on `~/Claude Generic/starters/browser-pwa-firebase` at the **Simple PWA** 
 | Language | Vanilla JavaScript (no build step), Python 3 for server |
 | UI       | Hand-rolled DOM via an `el()` helper; CSS variables     |
 | Backend  | None (server.py just serves static files)               |
-| Database | `localStorage` only (key: `bhm.history.v1`)             |
+| Database | `localStorage` (keys: `bhm.history.v1`, `bhm.edits.v1`) |
 | Testing  | Manual E2E via Chrome DevTools MCP                      |
 
 ## Folder Structure
@@ -79,9 +81,12 @@ open http://localhost:8791
 ```
 
 ## Data / Backend
-None. All state is client-side `localStorage`:
-- Key: `bhm.history.v1`
-- Value: array of `{at, role, branch, done, total}`, most recent first, capped at 200.
+None. All state is client-side `localStorage`. Two keys:
+
+- **`bhm.history.v1`** — array of `{at, role, branch, done, total}`, most recent first, capped at 200. Per-hand completion log.
+- **`bhm.edits.v1`** — `{ [sectionKey]: { [groupTitle]: { order, text, deleted, added } } }`. User edits to the checklists, applied over the seeded `CHECKLISTS` object at render time. Seeded `web/checklists.js` is never mutated.
+
+User-added items get ids of the form `u_<timestamp>_<n>` so they can't collide with seeded ids. See `architecture.md` § Data Model for the full patch shape.
 
 No Firebase. Re-evaluate only if cross-device sync of hand history is needed.
 

@@ -1,5 +1,7 @@
 :root {
-  /* Standard PWA palette (matches ~/Claude Generic template) */
+  /* Canonical PWA palette — COPY VERBATIM from ~/Claude Generic/reference/PWA.md
+     § "Dark Theme — canonical :root block". Source of truth lives in
+     ~/Claude Generic/starters/browser-pwa-firebase/web/style.css. */
   --bg-body: #1a1a2e;
   --bg-toolbar: #12122a;
   --bg-card: #16213e;
@@ -8,23 +10,30 @@
   --bg-button: #1e1e3a;
   --bg-button-hover: #2a2a50;
   --accent: #7b68ee;
-  --accent-dim: #5a4ebe;
   --text-primary: #e0e0e0;
   --text-secondary: #b0b0b0;
   --text-muted: #888;
   --text-brand: #fff;
   --border: #333;
   --border-light: #444;
-  --color-good: #4ade80;
-  --color-bad: #f87171;
+  --border-hover: #666;
+  --color-pick: #4ade80;
+  --color-reject: #f87171;
+  --color-save: #4ade80;
+  --color-toast: #4ade80;
   --color-link: #60a5fa;
+  --color-title: #93bbfc;
+  /* Semantic surface hierarchy (use in new projects) */
+  --bg-surface: var(--bg-card);
+  --bg-elevated: var(--bg-card-hover);
+  --accent-dim: #5a4ebe;
+  --text-dim: #666;
 
-  /* Local aliases used below */
+  /* Local aliases (project-specific, kept below canonical block) */
   --bg: var(--bg-body);
   --surface: var(--bg-card);
   --surface-2: var(--bg-card-hover);
   --text: var(--text-primary);
-  --text-dim: var(--text-secondary);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -374,9 +383,9 @@ html, body {
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
+  min-width: 44px;        /* PWA.md §Touch Targets — iOS minimum */
+  min-height: 44px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -384,7 +393,34 @@ html, body {
   padding: 0;
 }
 .edit-btn:active { background: var(--bg-button-hover); }
-.edit-btn-del { color: var(--color-bad); }
+.edit-btn-del { color: var(--color-reject); }
+
+/* Armed (mid-confirm) state — visible enough to read on a phone */
+.edit-btn-armed {
+  background: var(--color-reject);
+  border-color: var(--color-reject);
+  color: var(--bg-body);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 8px;
+  letter-spacing: 0.02em;
+  min-width: 80px;                  /* widen so "Confirm?" fits without wrap */
+}
+.edit-btn-armed:active {
+  background: var(--color-reject);
+  filter: brightness(0.9);
+}
+
+.btn-armed {
+  background: var(--color-reject);
+  color: var(--bg-body);
+  border-color: var(--color-reject);
+  font-weight: 700;
+}
+.btn-armed:active {
+  background: var(--color-reject);
+  filter: brightness(0.9);
+}
 
 .add-item-bar {
   border: 1px dashed var(--border-light);

@@ -1,17 +1,24 @@
 .fresh-chat-context.md
+.auto-restart-fresh
+
+# Secrets
+.env
+*.key
+*.pem
+credentials*.json
+*service-account*.json
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 
+# Node
+node_modules/
+
 # Server runtime
 logs/
 *.log
-
-# Certs (self-signed, gitignored per template convention)
-certs/cert.pem
-certs/key.pem
 
 # OS
 .DS_Store

@@ -76,6 +76,7 @@ No backend. Two in-memory + one persisted structure.
 ```
 
 ### In-memory: `CHECKLISTS` (static, loaded from `checklists.js`)
+The **seeded** source of truth. User edits never mutate this object — they live in `localStorage["bhm.edits.v1"]` and are applied at render time via `applyEdits(sectionKey)`.
 ```js
 {
   auction:        { title, subtitle, groups: [{ title, items: [{id, text}] }] },
@@ -95,11 +96,29 @@ No backend. Two in-memory + one persisted structure.
 | `done`   | Number | Items ticked                                 |
 | `total`  | Number | Items presented this hand (varies by branch) |
 
+### Persisted: `localStorage["bhm.edits.v1"]` (overrides on top of `CHECKLISTS`)
+User-made edits to the checklists (move / edit text / delete / add) live here as **patches** keyed by section + group. Applied at render time by `applyEdits(sectionKey)`. Seeded `web/checklists.js` is never mutated; "Reset all edits" wipes this key.
+
+```js
+{
+  [sectionKey]: {
+    [groupTitle]: {
+      order:   ["id1", "id2", ...] | null,   // explicit order (overrides seeded order)
+      text:    { [itemId]: "new text" },      // text overrides keyed by item id
+      deleted: ["id3", ...],                   // tombstoned seeded items
+      added:   [{ id, text }, ...]             // user-added items (ids prefixed "u_")
+    }
+  }
+}
+```
+
+User-added items get ids of the form `u_<timestamp>_<n>` so they can never collide with seeded ids. Deleting a seeded item tombstones it; deleting a user-added item drops it from `added` entirely.
+
 ## Module Structure
 
 | Module          | Purpose                                                  | Dependencies        |
 |-----------------|----------------------------------------------------------|---------------------|
-| `checklists.js` | All checklist content — single source of truth          | None                |
+| `checklists.js` | Seeded checklist content — overlayed by edits at render | None                |
 | `app.js`        | Screen renderers, session state, history, SW registration | checklists.js     |
 | `styles.css`    | Standard PWA palette (`:root` vars) + checklist UI       | None                |
 | `sw.js`         | Cache-first service worker for offline shell             | None                |
@@ -112,13 +131,25 @@ No backend. Two in-memory + one persisted structure.
 
 ```
 Home
- ├─[Declarer]──► Auction ──► "Did we win the contract?"
- │                            ├─ Yes ──► Analysis (NT | Suit) ──► Log ──► Home
- │                            └─ No  ──► Analysis (defender)   ──► Log ──► Home
- └─[Defender]──► Auction ──► Analysis (defender) ──► Log ──► Home
+ ├─[Declarer]────────► Auction ──► "Did we win the contract?"
+ │                                  ├─ Yes ──► Analysis (NT | Suit) ──► Log ──► Home
+ │                                  └─ No  ──► Analysis (defender)   ──► Log ──► Home
+ ├─[Defender]────────► Auction ──► Analysis (defender) ──► Log ──► Home
+ ├─[Edit Declarer]──► Editor (all 4 declarer sections stacked) ──► Home
+ └─[Edit Defender]──► Editor (auction + defender stacked)        ──► Home
 ```
 
 The Auction checklist is identical for both roles. Routing question only appears after the declarer-auction, because if you didn't win the contract you defend the hand instead.
+
+## Editor
+
+A separate edit-mode reachable from the Home stat strip ("Edit Declarer sheet" / "Edit Defender sheet"). Toggles a module-level `editMode` flag that swaps every checklist row from tap-to-tick into a row with four controls: **↑** move up, **↓** move down, **✎** edit text, **✕** delete. Each group ends with a **"+ Add item"** bar.
+
+- **Edit / Add** open an inline `<textarea>` with **Enter** = save, **Shift+Enter** = newline, **Escape** = cancel.
+- All mutations go through `editItemText`, `moveItem`, `deleteItem`, `addItem` — pure functions over `bhm.edits.v1`, no `CHECKLISTS` mutation.
+- Edit state (`editingItemId`, `addingInGroup`) is cleared on `renderHome` but preserved across `renderEditor` re-renders.
+- "Reset all edits" wipes `bhm.edits.v1` entirely (with `confirm()`).
+- Taps don't toggle ticks while `editMode === true`.
 
 ## Server
 
@@ -157,6 +188,9 @@ No automated tests yet. v1 was verified end-to-end via Chrome DevTools MCP drivi
 - **Post-hand log captures completion %** over per-item review — Goal is "did I run the habit?", not "was each call correct?". Future hooks for richer post-hand notes left open. (2026-06-02)
 - **History capped at 200 hands** over unbounded — A few seasons of club bridge. `localStorage` quota is ~5MB so this is generous; cap protects against an accidental loop bug filling storage. (2026-06-02)
 - **Cache-first SW with no API path** over network-first — App is fully static + localStorage; nothing on the server changes per request. Cache-first is faster and works offline by default. (2026-06-02)
+- **Edits as patches on top of seeded `CHECKLISTS`** over mutating `web/checklists.js` — Keeps the seeded source intact so "Reset all edits" is one localStorage delete. Lets us promote popular user edits back into the seed by hand later. Patch shape (`order` / `text` / `deleted` / `added`) supports all 4 mutations without re-serialising the full tree. (2026-06-02)
+- **Inline `<textarea>` for edit + add** over native `prompt()` modals — Better mobile UX; 16px font prevents iOS Safari zoom-on-focus; allows multi-line item text via Shift+Enter. (2026-06-02)
+- **Editor as a dedicated screen** over inline edit-toggle on the running checklists — Avoids stale tick-state and accidental edits at the table; clean separation between "use" and "tune". (2026-06-02)
 
 ### Hardcoded Values
 
@@ -165,8 +199,10 @@ No automated tests yet. v1 was verified end-to-end via Chrome DevTools MCP drivi
 - History cap: **200 hands** | localStorage quota safety margin
 - Stat window: **7 days** | Matches "weekly review" cadence of competitive players
 - Storage key: **`bhm.history.v1`** | `v1` suffix lets us version the schema in future
-- SW cache name: **`habit-map-v0.1.0`** | Bump on every code change to force re-install
-- APP_VERSION constant: **`0.1.0`** | Kept in lockstep with `VERSION` file via `lee version minor/major`
+- SW cache name: **`habit-map-vX.Y.Z`** | Bump on every code change to force re-install
+- APP_VERSION constant: **`X.Y.Z`** | Kept in lockstep with `VERSION` file via `lee version minor/major`
+- Edits storage key: **`bhm.edits.v1`** | `v1` suffix lets us version the patch schema in future
+- User-added item id prefix: **`u_<timestamp>_<n>`** | Guarantees no collision with seeded ids
 
 ### Bugs & Workarounds
 
