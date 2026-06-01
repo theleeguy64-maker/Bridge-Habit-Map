@@ -121,6 +121,19 @@ html, body {
   font-size: 14px;
 }
 
+/* Auction is a drill, not a full hand — slimmer, accent-tinted */
+.role-btn.role-btn-auction {
+  padding: 16px 20px;
+  border-color: var(--accent-dim);
+}
+.role-btn.role-btn-auction .role-title {
+  font-size: 18px;
+  color: var(--accent);
+}
+.role-btn.role-btn-auction .role-sub {
+  color: var(--text-secondary);
+}
+
 .stat-strip {
   background: var(--surface-2);
   border-radius: 10px;

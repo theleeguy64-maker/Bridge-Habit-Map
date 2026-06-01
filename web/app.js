@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.2.3";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.2.4";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -235,6 +235,10 @@ function renderHome() {
       el("div", { class: "phase-title" }, "Which sheet?")
     ),
     el("div", { class: "home-grid" },
+      el("button", { class: "role-btn role-btn-auction", onclick: () => startSession("auction") },
+        el("div", { class: "role-title" }, "Auction"),
+        el("div", { class: "role-sub" }, "Drill the bidding-phase checklist")
+      ),
       el("button", { class: "role-btn", onclick: () => startSession("declarer") },
         el("div", { class: "role-title" }, "Declarer"),
         el("div", { class: "role-sub" }, "Auction → NT or Suit plan")
@@ -311,17 +315,22 @@ function renderEditor(role) {
 function renderAuction() {
   currentRender = renderAuction;
   clear();
-  app.append(header(session.role === "declarer" ? "Declarer" : "Defender", renderHome));
+  const headerLabel = session.role === "declarer" ? "Declarer"
+                    : session.role === "defender" ? "Defender"
+                    : "Auction";
+  app.append(header(headerLabel, renderHome));
   app.append(
     el("div", { class: "phase-head" },
-      el("div", { class: "phase-name" }, "Phase 1 of 2"),
+      el("div", { class: "phase-name" }, session.role === "auction" ? "Drill" : "Phase 1 of 2"),
       el("div", { class: "phase-title" }, "Auction")
     )
   );
 
   renderSection("auction");
 
-  const nextLabel = session.role === "declarer" ? "Did we win the contract?" : "Auction done →";
+  const nextLabel = session.role === "declarer" ? "Did we win the contract?"
+                  : session.role === "auction"  ? "Finish drill"
+                  : "Auction done →";
   app.append(
     el("div", { class: "actions" },
       el("button", { class: "btn btn-ghost", onclick: renderHome }, "Cancel"),
@@ -329,6 +338,7 @@ function renderAuction() {
         class: "btn btn-primary",
         onclick: () => {
           if (session.role === "declarer") renderRouting();
+          else if (session.role === "auction") finishHand();
           else renderAnalysis();
         }
       }, nextLabel)
@@ -588,7 +598,9 @@ function sectionItemIds(sectionKey) {
 
 function allItemsForSession() {
   const ids = sectionItemIds("auction");
-  if (session.role === "declarer") {
+  if (session.role === "auction") {
+    // Auction-only drill — no analysis section
+  } else if (session.role === "declarer") {
     ids.push(...sectionItemIds("declarerCommon"));
     if (session.declarerBranch === "nt") ids.push(...sectionItemIds("declarerNT"));
     else if (session.declarerBranch === "suit") ids.push(...sectionItemIds("declarerSuit"));
@@ -663,6 +675,7 @@ function renderHistory() {
     const label = `${when.toLocaleDateString()} ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     const tag = row.role === "declarer"
       ? `Declarer${row.branch ? " (" + row.branch.toUpperCase() + ")" : ""}`
+      : row.role === "auction" ? "Auction drill"
       : "Defender";
     card.append(
       el("div", { class: "history-row" },

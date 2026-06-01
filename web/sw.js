@@ -2,7 +2,7 @@
 // Pattern: PWA.md → "Simple PWA Pattern" (cache-first shell, no API calls to handle).
 // Bump SHELL_CACHE on every code change to force re-install.
 
-const SHELL_CACHE = "habit-map-v0.2.3";
+const SHELL_CACHE = "habit-map-v0.2.4";
 const SHELL_FILES = [
   "./",
   "./index.html",
