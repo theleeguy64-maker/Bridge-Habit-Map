@@ -1,94 +1,108 @@
-# Project Name
+# Bridge Habit Map
 
 **You are working in the Bridge Habit Map project.** Always be aware of this context — the user should not need to tell you which project this is.
 
 ## Project
-<!-- TODO: Project name, path, description -->
-- **Path**: `~/Casual_claude/ProjectName`
-- **Launcher**: launched via `claudes` menu (option N) — see `~/Claude Generic/claude-sessions.sh`
+- **Path**: `~/Bridge Habit Map`
+- **Launcher**: launched via `claudes` menu — see `~/Claude Generic/claude-sessions.sh`
+- **Weight**: Light (message threshold 25)
 
 ## What It Does
-<!-- TODO: One paragraph describing the project's purpose -->
+Single-user PWA for building the habit of running a fixed mental checklist on every bridge hand. Two process sheets — **Declarer** and **Defender** — each have a shared Auction phase followed by an Analysis phase (pre-trick-1 plan). User taps through items at the table; app logs completion % per hand. Pure local-first: no backend, no accounts, history in `localStorage`.
 
- 
 ## Quick Start
-<!-- TODO: Steps to run the project -->
 ```bash
-cd ~/Casual_claude/ProjectName
-# TODO: add run commands
+cd "/Users/leeguy/Bridge Habit Map"
+python3 server.py
+# → http://localhost:8791
 ```
 
 ## Architecture
-See `architecture.md` for system diagram, data model, architectural decisions, and component details.
+See `architecture.md` for screen flow, data model, file structure, and architectural decisions.
 
 ## Template
-If this project uses the browser-pwa-firebase template, see `~/Claude Generic/starters/browser-pwa-firebase/README.md` for what's generic vs app-specific. Cross-project patterns in `~/Claude Generic/reference/PATTERNS.md` and `~/Claude Generic/reference/PWA.md`.
+Built on `~/Claude Generic/starters/browser-pwa-firebase` at the **Simple PWA** tier. Key cross-project references:
+- `~/Claude Generic/reference/PWA.md` → "Simple PWA Pattern" (sw.js, manifest, iOS install)
+- `~/Claude Generic/reference/PATTERNS.md` → JavaScript / Web section, `:root` theming
+- `~/Claude Generic/starters/browser-pwa-firebase/server_base.py` → reusable HTTPS server
 
 ## Tech Stack
-<!-- TODO: List languages, frameworks, key libraries -->
-| Layer | Technology |
-|-------|------------|
-| Language | <!-- TODO --> |
-| UI | <!-- TODO --> |
-| Backend | <!-- TODO --> |
-| Database | <!-- TODO --> |
-| Testing | <!-- TODO --> |
+| Layer    | Technology                                              |
+|----------|---------------------------------------------------------|
+| Language | Vanilla JavaScript (no build step), Python 3 for server |
+| UI       | Hand-rolled DOM via an `el()` helper; CSS variables     |
+| Backend  | None (server.py just serves static files)               |
+| Database | `localStorage` only (key: `bhm.history.v1`)             |
+| Testing  | Manual E2E via Chrome DevTools MCP                      |
 
 ## Folder Structure
-<!-- TODO: Update tree to match project -->
 ```
-├── src/                  # Source code
-├── tests/                # Test suites
-├── docs/                 # Documentation
-├── config/               # Configuration files
-└── README.md
+Bridge Habit Map/
+├── VERSION                    # 0.1.0 — bumped via lee version
+├── server.py                  # Thin handler subclass (port 8791)
+├── server_base.py             # From ~/Claude Generic template
+├── certs/                     # Self-signed cert for iOS install (empty until generated)
+├── architecture.md
+├── checklists-draft.md        # Source-tagged scrape dump used to seed the lists
+└── web/
+    ├── index.html             # Shell + PWA meta tags
+    ├── styles.css             # Standard PWA palette
+    ├── manifest.json          # PWA manifest
+    ├── sw.js                  # Cache-first service worker
+    ├── checklists.js          # CHECKLISTS data — edit freely
+    └── app.js                 # Screens, state, history, SW registration
 ```
 
 ## Key Files
-<!-- TODO: Add key files. Example from Superhuman project:
-| File | Purpose |
-|------|---------|
-| `web/config.js` | App identity: states, collections, fields, section order, content rules |
-| `web/app.js` | Orchestration: wires data, render, and suggestions modules |
-| `web/data.js` | Firebase/Firestore data operations (queries, writes, purge) |
-| `web/render.js` | DOM rendering, UI helpers, article card creation |
--->
-| File | Purpose |
-|------|---------|
-| `architecture.md` | System architecture and decisions |
+| File                 | Purpose                                                      |
+|----------------------|--------------------------------------------------------------|
+| `web/checklists.js`  | All checklist content. Edit text/order/grouping here.        |
+| `web/app.js`         | Screen renderers + session/history + SW registration         |
+| `web/styles.css`     | Standard palette in `:root`, all UI styling                  |
+| `web/sw.js`          | Cache-first SW. Bump `SHELL_CACHE` on every code change.     |
+| `server.py`          | Static server config. Set port, web dir, version prefix.     |
+| `architecture.md`    | Screen flow, data model, architectural decisions             |
+| `checklists-draft.md`| Source-tagged scrape dump (curation reference, not runtime)  |
 
 ## Common Commands
-<!-- TODO: Fill in project-specific commands -->
 ```bash
-# Run
-# TODO
+# Run dev server
+python3 server.py
 
-# Test
-# TODO
+# Bump shell cache after web/ changes — keep in lockstep:
+#   1. VERSION file (use lee version minor / major)
+#   2. APP_VERSION in web/app.js
+#   3. SHELL_CACHE in web/sw.js
 
-# Lint / Format
-# TODO
-
-# Deploy
-# TODO
+# Smoke test in browser
+open http://localhost:8791
 ```
 
 ## Data / Backend
-<!-- TODO: Database, APIs, external services. Remove if not applicable.
-   Example from Superhuman:
-   - **Project**: `superhuman-reader`
-   - **Region**: `us-central1`
-   - **Collections**: `newsletters`, `articles`, `suggestion_config`
-   - **Service account key**: `firebase-service-account.json` (gitignored)
-   - Deploy: `cd firebase && firebase deploy --only firestore`
--->
+None. All state is client-side `localStorage`:
+- Key: `bhm.history.v1`
+- Value: array of `{at, role, branch, done, total}`, most recent first, capped at 200.
+
+No Firebase. Re-evaluate only if cross-device sync of hand history is needed.
 
 ## PWA / Mobile
-<!-- TODO: PWA setup, mobile considerations. Remove if not applicable -->
+Simple PWA tier (offline-capable shell, no Firebase). To install on iPhone:
+1. Generate self-signed cert into `certs/`:
+   ```bash
+   cd certs && openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nodes \
+     -subj "/CN=BridgeHabitMap" -addext "subjectAltName=DNS:$(hostname).local"
+   ```
+2. Generate `web/icon-180.png` and `web/icon-512.png` (see PWA.md → "Icon Generation with Pillow").
+3. Trust cert on iPhone (PWA.md → "Install Certificate on iPhone").
+4. Open `https://<mac-hostname>.local:8791/` in Safari → Share → Add to Home Screen.
 
 ## Conventions
-<!-- TODO: Project-specific coding style, naming, patterns -->
-- <!-- TODO: Add conventions -->
+- **Vanilla JS, no framework, no build step.** Match the template.
+- **Theme via `:root` CSS variables only.** Never hardcode colors in component CSS.
+- **Tap target = the whole row** (`.item`), not just a checkbox. One-tap toggle.
+- **Single source of truth for checklist content** — `web/checklists.js`. Never duplicate item text into the DOM.
+- **Version lockstep on every web/ change.** Bump `VERSION`, `APP_VERSION` (app.js), and `SHELL_CACHE` (sw.js) together, or the home-screen PWA serves a stale shell.
+- **No comments unless WHY is non-obvious.** Item text is self-documenting.
 
 ## Lee Shortcuts
 

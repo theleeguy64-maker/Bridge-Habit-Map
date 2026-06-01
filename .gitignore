@@ -1,1 +1,17 @@
 .fresh-chat-context.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Server runtime
+logs/
+*.log
+
+# Certs (self-signed, gitignored per template convention)
+certs/cert.pem
+certs/key.pem
+
+# OS
+.DS_Store
