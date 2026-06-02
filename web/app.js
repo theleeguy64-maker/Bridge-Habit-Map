@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.3.1";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.3.2";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -328,7 +328,7 @@ function renderAuction() {
     )
   );
 
-  renderSection("auction");
+  renderSectionCols("auction");
 
   app.append(
     el("div", { class: "edit-strip" },
@@ -391,11 +391,12 @@ function renderAnalysis() {
 
   if (isDec) {
     renderDeclarerBranchPicker();
-    renderSection("declarerCommon");
-    if (session.declarerBranch === "nt") renderSection("declarerNT");
-    else if (session.declarerBranch === "suit") renderSection("declarerSuit");
+    const keys = ["declarerCommon"];
+    if (session.declarerBranch === "nt") keys.push("declarerNT");
+    else if (session.declarerBranch === "suit") keys.push("declarerSuit");
+    renderSectionCols(keys);
   } else {
-    renderSection("defender");
+    renderSectionCols("defender");
   }
 
   app.append(
@@ -428,8 +429,9 @@ function renderDeclarerBranchPicker() {
 
 // ---------- Render section / groups ----------
 
-function renderSection(sectionKey) {
+function renderSection(sectionKey, parent) {
   const { groups } = applyEdits(sectionKey);
+  const target = parent || app;
   for (const g of groups) {
     const groupEl = el("div", { class: "group" });
     if (g.title) groupEl.append(el("div", { class: "group-title" }, g.title));
@@ -439,8 +441,16 @@ function renderSection(sectionKey) {
     if (editMode) {
       groupEl.append(renderAddItemBar(sectionKey, g.title));
     }
-    app.append(groupEl);
+    target.append(groupEl);
   }
+}
+
+function renderSectionCols(sectionKeys) {
+  const cols = el("div", { class: "checklist-cols" });
+  for (const k of (Array.isArray(sectionKeys) ? sectionKeys : [sectionKeys])) {
+    renderSection(k, cols);
+  }
+  app.append(cols);
 }
 
 function renderItem(sectionKey, groupTitle, item) {

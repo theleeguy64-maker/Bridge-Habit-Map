@@ -60,14 +60,26 @@ html, body {
 /* iPad / tablet — widen, bump base font, more breathing room */
 @media (min-width: 720px) {
   html, body { font-size: 18px; }
-  #app { max-width: 760px; padding-left: 24px; padding-right: 24px; }
-  .phase-head .phase-title { font-size: 28px; }
-  .role-btn { padding: 28px 24px; }
-  .role-btn .role-title { font-size: 24px; }
-  .item { padding: 16px 18px; }
-  .item-text { font-size: 17px; }
-  .btn { padding: 16px 20px; font-size: 17px; }
+  #app { max-width: 1100px; padding-left: 24px; padding-right: 24px; }
+  .phase-head .phase-title { font-size: 26px; }
+  .role-btn { padding: 24px 22px; }
+  .role-btn .role-title { font-size: 22px; }
+  .item { padding: 12px 14px; margin-bottom: 6px; }
+  .item-text { font-size: 16px; }
+  .btn { padding: 14px 18px; font-size: 16px; }
   .edit-btn { min-width: 48px; min-height: 48px; font-size: 17px; }
+
+  /* Two-column checklist on tablet+ — groups flow into 2 columns so a sheet fits one screen */
+  .checklist-cols {
+    column-count: 2;
+    column-gap: 24px;
+  }
+  .checklist-cols .group {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 14px;
+  }
 }
 
 /* Header */
