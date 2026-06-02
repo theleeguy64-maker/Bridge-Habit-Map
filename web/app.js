@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.2.4";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.3.0";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -235,17 +235,9 @@ function renderHome() {
       el("div", { class: "phase-title" }, "Which sheet?")
     ),
     el("div", { class: "home-grid" },
-      el("button", { class: "role-btn role-btn-auction", onclick: () => startSession("auction") },
+      el("button", { class: "role-btn", onclick: () => startSession("auction") },
         el("div", { class: "role-title" }, "Auction"),
-        el("div", { class: "role-sub" }, "Drill the bidding-phase checklist")
-      ),
-      el("button", { class: "role-btn", onclick: () => startSession("declarer") },
-        el("div", { class: "role-title" }, "Declarer"),
-        el("div", { class: "role-sub" }, "Auction → NT or Suit plan")
-      ),
-      el("button", { class: "role-btn", onclick: () => startSession("defender") },
-        el("div", { class: "role-title" }, "Defender"),
-        el("div", { class: "role-sub" }, "Auction → Defense plan")
+        el("div", { class: "role-sub" }, "Start a hand")
       ),
     ),
     el("div", { class: "stat-strip" },
@@ -255,11 +247,6 @@ function renderHome() {
         style: "margin: 0; padding: 0;",
         onclick: renderHistory,
       }, "History →")
-    ),
-    el("div", { class: "edit-strip" },
-      el("button", { class: "btn-link", onclick: () => renderEditor("declarer") }, "Edit Declarer sheet"),
-      el("span", { class: "edit-strip-sep" }, "·"),
-      el("button", { class: "btn-link", onclick: () => renderEditor("defender") }, "Edit Defender sheet"),
     ),
     el("div", { class: "version-tag-strip" }, "v" + APP_VERSION),
   );
@@ -277,11 +264,17 @@ function renderEditor(role) {
   editMode = true;
   clear();
   // Don't reset editingItemId / addingInGroup here — re-rendering during edit is expected
-  app.append(header(role === "declarer" ? "Edit Declarer" : "Edit Defender", () => { editMode = false; renderHome(); }));
+  const headerTitle = role === "declarer" ? "Edit Declarer"
+                    : role === "defender" ? "Edit Defender"
+                    : "Edit Auction";
+  const phaseTitle  = role === "declarer" ? "Declarer sheet"
+                    : role === "defender" ? "Defender sheet"
+                    : "Auction sheet";
+  app.append(header(headerTitle, () => { editMode = false; renderHome(); }));
   app.append(
     el("div", { class: "phase-head" },
       el("div", { class: "phase-name" }, "Editing"),
-      el("div", { class: "phase-title" }, role === "declarer" ? "Declarer sheet" : "Defender sheet")
+      el("div", { class: "phase-title" }, phaseTitle)
     )
   );
 
@@ -292,9 +285,13 @@ function renderEditor(role) {
         { key: "declarerNT",     label: "Analysis — NT branch" },
         { key: "declarerSuit",   label: "Analysis — Suit branch" },
       ]
-    : [
+    : role === "defender"
+    ? [
         { key: "auction",  label: "Auction (shared)" },
         { key: "defender", label: "Analysis — defender" },
+      ]
+    : [
+        { key: "auction", label: "Auction" },
       ];
 
   for (const s of sections) {
@@ -328,20 +325,25 @@ function renderAuction() {
 
   renderSection("auction");
 
-  const nextLabel = session.role === "declarer" ? "Did we win the contract?"
-                  : session.role === "auction"  ? "Finish drill"
-                  : "Auction done →";
   app.append(
+    el("div", { class: "edit-strip" },
+      el("button", { class: "btn-link", onclick: () => renderEditor("auction") }, "Edit Auction sheet"),
+    ),
+    el("div", { class: "phase-head", style: "margin-top: 18px;" },
+      el("div", { class: "phase-name" }, "Next"),
+    ),
+    el("div", { class: "home-grid" },
+      el("button", { class: "role-btn", onclick: () => { session.role = "declarer"; renderAnalysis(); } },
+        el("div", { class: "role-title" }, "Declarer"),
+        el("div", { class: "role-sub" }, "NT or Suit plan")
+      ),
+      el("button", { class: "role-btn", onclick: () => { session.role = "defender"; renderAnalysis(); } },
+        el("div", { class: "role-title" }, "Defender"),
+        el("div", { class: "role-sub" }, "Defense plan")
+      ),
+    ),
     el("div", { class: "actions" },
       el("button", { class: "btn btn-ghost", onclick: renderHome }, "Cancel"),
-      el("button", {
-        class: "btn btn-primary",
-        onclick: () => {
-          if (session.role === "declarer") renderRouting();
-          else if (session.role === "auction") finishHand();
-          else renderAnalysis();
-        }
-      }, nextLabel)
     )
   );
 }
@@ -373,16 +375,16 @@ function renderRouting() {
 function renderAnalysis() {
   currentRender = renderAnalysis;
   clear();
-  const back = session.role === "declarer" ? renderRouting : renderAuction;
-  app.append(header(session.role === "declarer" ? "Declarer" : "Defender", back));
+  const isDec = session.role === "declarer";
+  app.append(header(isDec ? "Declarer" : "Defender", renderAuction));
   app.append(
     el("div", { class: "phase-head" },
-      el("div", { class: "phase-name" }, "Phase 2 of 2"),
-      el("div", { class: "phase-title" }, "Analysis — pre-trick 1")
+      el("div", { class: "phase-name" }, "Pre-trick 1"),
+      el("div", { class: "phase-title" }, isDec ? "Declarer plan" : "Defense plan")
     )
   );
 
-  if (session.role === "declarer") {
+  if (isDec) {
     renderDeclarerBranchPicker();
     renderSection("declarerCommon");
     if (session.declarerBranch === "nt") renderSection("declarerNT");
@@ -392,6 +394,12 @@ function renderAnalysis() {
   }
 
   app.append(
+    el("div", { class: "edit-strip" },
+      el("button", {
+        class: "btn-link",
+        onclick: () => renderEditor(isDec ? "declarer" : "defender")
+      }, isDec ? "Edit Declarer sheet" : "Edit Defender sheet"),
+    ),
     el("div", { class: "actions" },
       el("button", { class: "btn btn-ghost", onclick: renderHome }, "Cancel"),
       el("button", { class: "btn btn-primary", onclick: finishHand }, "Finish hand")
