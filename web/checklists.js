@@ -8,27 +8,21 @@ const CHECKLISTS = {
     subtitle: "Same for declarer & defender — run during the bidding",
     groups: [
       {
-        title: "Listen & anticipate",
+        title: "General",
         items: [
-          { id: "a1", text: "Think during every bid — don't wait for your turn" },
-          { id: "a2", text: "Convert each bid into shape + HCP for the bidder" },
-          { id: "a3", text: "Note what's asked vs not asked (missing major = no 4-card major)" },
-          { id: "a4", text: "Spot the system tools in play (Stayman, transfers, NMF, 4SF, cues)" },
-        ],
-      },
-      {
-        title: "Build the picture",
-        items: [
-          { id: "a5", text: "Form a mental shape-pattern for at least one opponent" },
-          { id: "a6", text: "Start from minimum length promised — refine as bids land" },
-          { id: "a7", text: "Add visible HCP, subtract from 40 → partner's range" },
+          { id: "a1", text: "Check vulnerability" },
+          { id: "a2", text: "Use every bid to get info — partner + opps → HCP + shape" },
+          { id: "a3", text: "Start from minimum length & min HCP promised — refine as bids land" },
+          { id: "a4", text: "Bids not made are as important as bids made (e.g. passed → not 1 opener, no 6-card major)" },
+          { id: "a5", text: "Remember conventions tend to show the bidder's shape / HCP" },
+          { id: "a6", text: "By end of auction — summarise what you know about opps + partner" },
         ],
       },
       {
         title: "Lead prep (if you'll be on lead)",
         items: [
-          { id: "a8", text: "Pick a tentative opening lead during the auction, not after" },
-          { id: "a9", text: "Watch for lead-directing double opportunities on artificial bids" },
+          { id: "a7", text: "Pick a tentative opening lead during the auction, not after" },
+          { id: "a8", text: "Watch for lead-directing double opportunities on artificial bids" },
         ],
       },
     ],
