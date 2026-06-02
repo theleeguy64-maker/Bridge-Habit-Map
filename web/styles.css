@@ -57,8 +57,15 @@ html, body {
   flex-direction: column;
 }
 
-/* iPad / tablet — widen, bump base font, more breathing room */
-@media (min-width: 720px) {
+/* Single column on phone; two columns from iPad portrait up. */
+.checklist-cols .group {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* iPad portrait is 768px; ≥700px covers it and split-view iPad / desktop */
+@media (min-width: 700px) {
   html, body { font-size: 18px; }
   #app { max-width: 1100px; padding-left: 24px; padding-right: 24px; }
   .phase-head .phase-title { font-size: 26px; }
@@ -68,18 +75,8 @@ html, body {
   .item-text { font-size: 16px; }
   .btn { padding: 14px 18px; font-size: 16px; }
   .edit-btn { min-width: 48px; min-height: 48px; font-size: 17px; }
-
-  /* Two-column checklist on tablet+ — groups flow into 2 columns so a sheet fits one screen */
-  .checklist-cols {
-    column-count: 2;
-    column-gap: 24px;
-  }
-  .checklist-cols .group {
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-    margin-bottom: 14px;
-  }
+  .checklist-cols { column-count: 2; column-gap: 24px; }
+  .checklist-cols .group { margin-bottom: 14px; }
 }
 
 /* Header */
