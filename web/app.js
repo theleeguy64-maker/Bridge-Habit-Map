@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.3.0";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.3.1";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -12,11 +12,16 @@ let addingInGroup = null;        // { sectionKey, groupTitle } — group with an
 let confirmingActionId = null;   // id of a destructive action mid-confirm (item id for delete, "reset-all" for reset)
 let confirmingTimer = null;      // timeout handle that reverts the confirm state
 
-// Register service worker (silent on file://, or when sw.js missing)
-if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  });
+// Unregister any previously installed service worker — we no longer ship one.
+// Without this, browsers that installed a v≤0.3.0 SW will keep serving the
+// cached shell forever and never see new deploys.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then(regs => regs.forEach(r => r.unregister()))
+    .catch(() => {});
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+  }
 }
 
 // Session state — reset on each new hand
