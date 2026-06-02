@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.3.5";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.3.6";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -337,7 +337,7 @@ function renderAuction() {
     el("div", { class: "phase-head", style: "margin-top: 18px;" },
       el("div", { class: "phase-name" }, "Next"),
     ),
-    el("div", { class: "home-grid" },
+    el("div", { class: "home-grid home-grid-2col" },
       el("button", { class: "role-btn", onclick: () => { session.role = "declarer"; renderAnalysis(); } },
         el("div", { class: "role-title" }, "Declarer"),
         el("div", { class: "role-sub" }, "NT or Suit plan")

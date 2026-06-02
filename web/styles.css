@@ -131,6 +131,9 @@ html, body {
   gap: 14px;
   margin-top: 16px;
 }
+.home-grid-2col {
+  grid-template-columns: 1fr 1fr;
+}
 .role-btn {
   background: var(--surface);
   border: 1px solid var(--border);
