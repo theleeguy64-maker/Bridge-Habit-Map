@@ -42,7 +42,7 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-  font-size: 17px;
+  font-size: 13px;
   line-height: 1.4;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -66,17 +66,17 @@ html, body {
 
 /* iPad portrait is 768px; ≥700px covers it and split-view iPad / desktop */
 @media (min-width: 700px) {
-  html, body { font-size: 18px; }
+  html, body { font-size: 14px; }
   #app { max-width: 1100px; padding-left: 24px; padding-right: 24px; }
-  .phase-head .phase-title { font-size: 26px; }
-  .role-btn { padding: 24px 22px; }
-  .role-btn .role-title { font-size: 22px; }
-  .item { padding: 12px 14px; margin-bottom: 6px; }
-  .item-text { font-size: 16px; }
-  .btn { padding: 14px 18px; font-size: 16px; }
-  .edit-btn { min-width: 48px; min-height: 48px; font-size: 17px; }
-  .checklist-cols { column-count: 2; column-gap: 24px; }
-  .checklist-cols .group { margin-bottom: 14px; }
+  .phase-head .phase-title { font-size: 20px; }
+  .role-btn { padding: 18px 16px; }
+  .role-btn .role-title { font-size: 16px; }
+  .item { padding: 9px 11px; margin-bottom: 5px; }
+  .item-text { font-size: 12px; }
+  .btn { padding: 10px 14px; font-size: 12px; }
+  .edit-btn { min-width: 44px; min-height: 44px; font-size: 13px; }
+  .checklist-cols { column-count: 2; column-gap: 20px; }
+  .checklist-cols .group { margin-bottom: 12px; }
 }
 
 /* Header */
@@ -88,7 +88,7 @@ html, body {
   margin-bottom: 8px;
 }
 .top h1 {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -125,7 +125,7 @@ html, body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 24px 20px;
+  padding: 18px 15px;
   color: var(--text);
   text-align: left;
   cursor: pointer;
@@ -134,7 +134,7 @@ html, body {
 .role-btn:active { transform: scale(0.98); }
 .role-btn:hover { border-color: var(--accent-dim); }
 .role-btn .role-title {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 600;
   margin-bottom: 4px;
 }
@@ -185,7 +185,7 @@ html, body {
   margin-bottom: 4px;
 }
 .phase-head .phase-title {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -205,11 +205,11 @@ html, body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 9px;
   cursor: pointer;
   user-select: none;
   transition: background 0.12s, border-color 0.12s;
@@ -225,9 +225,9 @@ html, body {
   text-decoration-color: var(--text-dim);
 }
 .tick {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
   border: 2px solid var(--border);
   border-radius: 50%;
   display: flex;
@@ -243,12 +243,12 @@ html, body {
 .item.done .tick::after {
   content: "✓";
   color: var(--bg);
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
 }
 .item-text {
   flex: 1;
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -263,9 +263,9 @@ html, body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 14px;
   color: var(--text);
-  font-size: 17px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -287,12 +287,12 @@ html, body {
 }
 .btn {
   flex: 1;
-  padding: 14px 18px;
+  padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -314,8 +314,8 @@ html, body {
   padding: 30px 20px;
 }
 .routing p {
-  font-size: 19px;
-  margin-bottom: 24px;
+  font-size: 14px;
+  margin-bottom: 18px;
 }
 .routing .pair {
   display: grid;
@@ -329,7 +329,7 @@ html, body {
   padding: 30px 16px;
 }
 .log-summary .pct {
-  font-size: 56px;
+  font-size: 42px;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--accent);
@@ -338,11 +338,11 @@ html, body {
 .log-summary .ratio {
   color: var(--text-dim);
   font-size: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 .log-summary .verdict {
-  font-size: 18px;
-  margin-bottom: 28px;
+  font-size: 14px;
+  margin-bottom: 22px;
 }
 
 /* History list */
