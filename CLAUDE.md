@@ -40,28 +40,29 @@ Built on `~/Claude Generic/starters/browser-pwa-firebase` at the **Simple PWA** 
 ## Folder Structure
 ```
 Bridge Habit Map/
-├── VERSION                    # 0.1.0 — bumped via lee version
+├── VERSION                    # 0.3.10 — bumped via lee version
 ├── server.py                  # Thin handler subclass (port 8791)
 ├── server_base.py             # From ~/Claude Generic template
 ├── certs/                     # Self-signed cert for iOS install (empty until generated)
+├── build-pdfs.py              # Generates 4 A4 print PDFs from web/checklists.js
+├── pdfs/                      # Print-friendly sheets (auction/declarer-nt/declarer-suit/defender)
 ├── architecture.md
 ├── checklists-draft.md        # Source-tagged scrape dump used to seed the lists
 └── web/
     ├── index.html             # Shell + PWA meta tags
     ├── styles.css             # Standard PWA palette
     ├── manifest.json          # PWA manifest
-    ├── sw.js                  # Cache-first service worker
     ├── checklists.js          # CHECKLISTS data — edit freely
-    └── app.js                 # Screens, state, history, SW registration
+    └── app.js                 # Screens, state, history; unregisters any stale SW on boot
 ```
 
 ## Key Files
 | File                 | Purpose                                                      |
 |----------------------|--------------------------------------------------------------|
 | `web/checklists.js`  | All checklist content. Edit text/order/grouping here.        |
-| `web/app.js`         | Screen renderers + session/history + SW registration         |
+| `web/app.js`         | Screen renderers + session/history; unregisters stale SWs    |
 | `web/styles.css`     | Standard palette in `:root`, all UI styling                  |
-| `web/sw.js`          | Cache-first SW. Bump `SHELL_CACHE` on every code change.     |
+| `build-pdfs.py`      | Generates the 4 print PDFs from `web/checklists.js`.         |
 | `server.py`          | Static server config. Set port, web dir, version prefix.     |
 | `architecture.md`    | Screen flow, data model, architectural decisions             |
 | `checklists-draft.md`| Source-tagged scrape dump (curation reference, not runtime)  |
@@ -71,10 +72,13 @@ Bridge Habit Map/
 # Run dev server
 python3 server.py
 
-# Bump shell cache after web/ changes — keep in lockstep:
+# Bump version after web/ changes — keep in lockstep:
 #   1. VERSION file (use lee version minor / major)
 #   2. APP_VERSION in web/app.js
-#   3. SHELL_CACHE in web/sw.js
+# (No service worker — there's no SHELL_CACHE to bump.)
+
+# Regenerate print PDFs after editing web/checklists.js
+python3 build-pdfs.py
 
 # Smoke test in browser
 open http://localhost:8791
@@ -91,7 +95,11 @@ User-added items get ids of the form `u_<timestamp>_<n>` so they can't collide w
 No Firebase. Re-evaluate only if cross-device sync of hand history is needed.
 
 ## PWA / Mobile
-Simple PWA tier (offline-capable shell, no Firebase). To install on iPhone:
+Deployed to GitHub Pages: https://theleeguy64-maker.github.io/Bridge-Habit-Map/
+The service worker was dropped in v0.3.1 — no offline shell. `app.js` actively
+unregisters any stale SW + clears caches on boot, so users on v≤0.3.0 self-heal.
+iOS "Add to Home Screen" still works (manifest + apple meta kept). To install from
+the local dev server on iPhone:
 1. Generate self-signed cert into `certs/`:
    ```bash
    cd certs && openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nodes \
@@ -106,7 +114,7 @@ Simple PWA tier (offline-capable shell, no Firebase). To install on iPhone:
 - **Theme via `:root` CSS variables only.** Never hardcode colors in component CSS.
 - **Tap target = the whole row** (`.item`), not just a checkbox. One-tap toggle.
 - **Single source of truth for checklist content** — `web/checklists.js`. Never duplicate item text into the DOM.
-- **Version lockstep on every web/ change.** Bump `VERSION`, `APP_VERSION` (app.js), and `SHELL_CACHE` (sw.js) together, or the home-screen PWA serves a stale shell.
+- **Version lockstep on every web/ change.** Bump `VERSION` and `APP_VERSION` (app.js) together so the version tag in the app reflects the deploy. (No service worker / `SHELL_CACHE` since v0.3.1.)
 - **No comments unless WHY is non-obvious.** Item text is self-documenting.
 
 ## Lee Shortcuts

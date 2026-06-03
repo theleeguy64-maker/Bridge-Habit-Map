@@ -16,7 +16,7 @@ Bridge Habit Map is a single-user, local-first PWA for building the habit of run
 │  Browser UI (web/)              │
 │  index.html → app.js            │
 │  + checklists.js (data)         │
-│  + sw.js (cache-first shell)    │
+│  (no service worker — see below)│
 │  ↳ tap-through screens          │
 │  ↳ session state in memory      │
 └────────────────────────┬────────┘
@@ -44,7 +44,7 @@ No data ever leaves the device. The server only serves static files.
 
 ```
 Bridge Habit Map/
-├── VERSION                    # 0.1.0 — bumped via `lee version minor/major`
+├── VERSION                    # 0.3.10 — bumped via `lee version minor/major`
 ├── server.py                  # Thin handler subclass — points at web/, sets PORT 8791
 ├── server_base.py             # Generic HTTPS server (copied from template)
 ├── certs/                     # Self-signed cert.pem + key.pem (drop in for iOS install)
@@ -55,10 +55,9 @@ Bridge Habit Map/
 └── web/                       # Everything served to the browser
     ├── index.html             # Shell + PWA meta tags + manifest link
     ├── styles.css             # Standard PWA palette + checklist UI
-    ├── manifest.json          # PWA manifest (standalone, portrait)
-    ├── sw.js                  # Service worker — cache-first shell, no API calls
+    ├── manifest.json          # PWA manifest (standalone, "any" orientation)
     ├── checklists.js          # CHECKLISTS data object (edit freely)
-    └── app.js                 # Screens, state, localStorage, SW registration
+    └── app.js                 # Screens, state, localStorage; unregisters any stale SW on boot
 ```
 
 ## Data Model
@@ -119,9 +118,8 @@ User-added items get ids of the form `u_<timestamp>_<n>` so they can never colli
 | Module          | Purpose                                                  | Dependencies        |
 |-----------------|----------------------------------------------------------|---------------------|
 | `checklists.js` | Seeded checklist content — overlayed by edits at render | None                |
-| `app.js`        | Screen renderers, session state, history, SW registration | checklists.js     |
+| `app.js`        | Screen renderers, session state, history; unregisters stale SWs | checklists.js |
 | `styles.css`    | Standard PWA palette (`:root` vars) + checklist UI       | None                |
-| `sw.js`         | Cache-first service worker for offline shell             | None                |
 | `manifest.json` | PWA manifest                                             | None                |
 | `server.py`     | Static file server (subclass of `LocalAppHandler`)       | `server_base.py`    |
 
@@ -158,7 +156,7 @@ A separate edit-mode reachable from the Home stat strip ("Edit Declarer sheet" /
 | `/`               | GET    | Serves `web/index.html`                       |
 | `/<asset>`        | GET    | Serves static files from `web/`               |
 | `/health`         | GET    | `{"status": "ok"}` (used by iOS PWA shell)    |
-| `/version`        | GET    | Reads `SHELL_CACHE = "habit-map-vX.Y.Z"` from `sw.js` |
+| `/version`        | GET    | Reports the app version (from `server.py` prefix) |
 
 No POST endpoints. The app is read-only from the server's perspective; all state lives client-side.
 
@@ -187,7 +185,8 @@ No automated tests yet. v1 was verified end-to-end via Chrome DevTools MCP drivi
 - **Active-vs-passive as a binary** over a richer "kind of defense" decision — Habit-building app, not a teaching tool. Two heuristics (long-suit declarer → active, balanced → passive) cover the common case. (2026-06-02)
 - **Post-hand log captures completion %** over per-item review — Goal is "did I run the habit?", not "was each call correct?". Future hooks for richer post-hand notes left open. (2026-06-02)
 - **History capped at 200 hands** over unbounded — A few seasons of club bridge. `localStorage` quota is ~5MB so this is generous; cap protects against an accidental loop bug filling storage. (2026-06-02)
-- **Cache-first SW with no API path** over network-first — App is fully static + localStorage; nothing on the server changes per request. Cache-first is faster and works offline by default. (2026-06-02)
+- **Cache-first SW with no API path** over network-first — App is fully static + localStorage; nothing on the server changes per request. Cache-first is faster and works offline by default. (2026-06-02) — **SUPERSEDED, see below.**
+- **Dropped the service worker entirely** over keeping cache-first SW — Once the app moved to GitHub Pages, the SW cache trapped users on stale shells (no way to push updates). `app.js` now actively unregisters any pre-existing SW and clears its caches on boot, so users stuck on v≤0.3.0 self-heal. Trade-off: no offline shell. Acceptable for a connected, single-user app. (2026-06-02)
 - **Edits as patches on top of seeded `CHECKLISTS`** over mutating `web/checklists.js` — Keeps the seeded source intact so "Reset all edits" is one localStorage delete. Lets us promote popular user edits back into the seed by hand later. Patch shape (`order` / `text` / `deleted` / `added`) supports all 4 mutations without re-serialising the full tree. (2026-06-02)
 - **Inline `<textarea>` for edit + add** over native `prompt()` modals — Better mobile UX; 16px font prevents iOS Safari zoom-on-focus; allows multi-line item text via Shift+Enter. (2026-06-02)
 - **Editor as a dedicated screen** over inline edit-toggle on the running checklists — Avoids stale tick-state and accidental edits at the table; clean separation between "use" and "tune". (2026-06-02)
@@ -199,7 +198,6 @@ No automated tests yet. v1 was verified end-to-end via Chrome DevTools MCP drivi
 - History cap: **200 hands** | localStorage quota safety margin
 - Stat window: **7 days** | Matches "weekly review" cadence of competitive players
 - Storage key: **`bhm.history.v1`** | `v1` suffix lets us version the schema in future
-- SW cache name: **`habit-map-vX.Y.Z`** | Bump on every code change to force re-install
 - APP_VERSION constant: **`X.Y.Z`** | Kept in lockstep with `VERSION` file via `lee version minor/major`
 - Edits storage key: **`bhm.edits.v1`** | `v1` suffix lets us version the patch schema in future
 - User-added item id prefix: **`u_<timestamp>_<n>`** | Guarantees no collision with seeded ids
