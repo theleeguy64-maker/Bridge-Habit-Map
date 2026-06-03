@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.3.10";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.3.11";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -283,16 +283,17 @@ function renderEditor(role) {
     )
   );
 
+  const SHARED_CAPTION = "Shared — shows in the Auction phase of every hand";
   const sections = role === "declarer"
     ? [
-        { key: "auction",        label: "Auction (shared)" },
+        { key: "auction",        label: "Auction", caption: SHARED_CAPTION },
         { key: "declarerCommon", label: "Analysis — discipline & lead" },
         { key: "declarerNT",     label: "Analysis — NT branch" },
         { key: "declarerSuit",   label: "Analysis — Suit branch" },
       ]
     : role === "defender"
     ? [
-        { key: "auction",  label: "Auction (shared)" },
+        { key: "auction",  label: "Auction", caption: SHARED_CAPTION },
         { key: "defender", label: "Analysis — defender" },
       ]
     : [
@@ -300,7 +301,9 @@ function renderEditor(role) {
       ];
 
   for (const s of sections) {
-    app.append(el("div", { class: "section-divider" }, s.label));
+    const divider = el("div", { class: "section-divider" }, s.label);
+    if (s.caption) divider.append(el("span", { class: "section-caption" }, s.caption));
+    app.append(divider);
     renderSection(s.key);
   }
 

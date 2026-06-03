@@ -378,13 +378,27 @@ html, body {
 }
 
 .section-divider {
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--accent);
-  margin: 22px 4px 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.08em;
+  color: var(--text-brand);
+  background: var(--accent);
+  margin: 28px 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.section-divider:first-of-type { margin-top: 14px; }
+
+.section-divider .section-caption {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--text-brand);
+  opacity: 0.85;
 }
 
 .item.edit-row {
