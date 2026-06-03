@@ -40,7 +40,7 @@ Built on `~/Claude Generic/starters/browser-pwa-firebase` at the **Simple PWA** 
 ## Folder Structure
 ```
 Bridge Habit Map/
-├── VERSION                    # 0.3.10 — bumped via lee version
+├── VERSION                    # current app version — bumped via lee version
 ├── server.py                  # Thin handler subclass (port 8791)
 ├── server_base.py             # From ~/Claude Generic template
 ├── certs/                     # Self-signed cert for iOS install (empty until generated)

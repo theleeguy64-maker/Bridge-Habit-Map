@@ -174,7 +174,7 @@ No automated tests yet. v1 was verified end-to-end via Chrome DevTools MCP drivi
 
 ### Choices
 
-- **Simple PWA tier** over Full PWA tier — Habit Map is single-user, single-device, has no email parsing, no inbox, no shared content. Firebase, the parser, and the suggestion engine would be dead weight. Simple tier gives us cache-first SW + iOS install without the cost. (2026-06-02)
+- **Simple PWA tier** over Full PWA tier — Habit Map is single-user, single-device, has no email parsing, no inbox, no shared content. Firebase, the parser, and the suggestion engine would be dead weight. Simple tier gives us iOS install (manifest + apple meta) without the cost. (The cache-first service worker the tier ships with was dropped in v0.3.1 — see the SW decision note below.) (2026-06-02)
 - **`localStorage` only** over Firebase Firestore — One device, no sync needs, no schema evolution risk. Re-evaluate if Lee wants phone↔laptop sync of hand history. (2026-06-02)
 - **Vanilla DOM via `el()` helper** over framework — 5 screens, ~300 LOC of UI. React/Vue would dwarf the app. Matches template convention (no build step). (2026-06-02)
 - **Single `currentRender` reference for re-renders** over a router — Toggles only need to re-render the active screen; explicit screen-render fns + one mutable reference is simpler than a routing table. (2026-06-02)
