@@ -25,6 +25,49 @@ const CHECKLISTS = {
           { id: "a8", text: "Watch for lead-directing double opportunities on artificial bids" },
         ],
       },
+      {
+        title: "Uncontested auction",
+        items: [
+          { id: "bid1", text: "Bid slightly conservatively — invite when you can rather than just bidding game" },
+          { id: "bid2", text: "Good hand → follow the auction and partner's positivity (or lack of it)" },
+          { id: "bid3", text: "Bid of a minor after 4th-hand protection shows a weak 2 in that minor" },
+          { id: "bid4", text: "Responder reverse shows 12+ — game force" },
+        ],
+      },
+      {
+        title: "Competitive auction",
+        items: [
+          { id: "bid5", text: "If it's our hand → bid our contract, or Dbl" },
+          { id: "bid6", text: "Fit + opps support a suit + you have length or shortage → need fewer points for game (~20)" },
+          { id: "bid7", text: "After our T/O Dbl: NT from responder tends to show a max hand" },
+          { id: "bid8", text: "After our T/O Dbl: a new suit or NT is strong" },
+          { id: "bid9", text: "After our Neg Dbl: a new suit is a weak 6-card suit" },
+          { id: "bid10", text: "Opps sacrifice → partner's Dbl is for penalties" },
+          { id: "bid11", text: "Opps sacrifice → Pass is a forcing pass (partner must Dbl or bid the suit again)" },
+          { id: "bid12", text: "Opps sacrifice → bidding the suit again shows the strongest hand" },
+        ],
+      },
+      {
+        title: "Bidding cautions",
+        items: [
+          { id: "bid13", text: "You can reopen with a Dbl" },
+          { id: "bid14", text: "When opps bid strangely, be careful" },
+          { id: "bid15", text: "After you T/O and opps make a game try — don't push the bidding" },
+        ],
+      },
+      {
+        title: "Scoring strategy (IMPs vs Matchpoints)",
+        items: [
+          { id: "imp1", text: "IMPs: bid games & small slams aggressively; MPs: only bid high-confidence games/slams" },
+          { id: "imp2", text: "IMPs: don't bid part-scores too aggressively; MPs: bid part-scores aggressively" },
+          { id: "imp3", text: "IMPs: don't Dbl into game; MPs: Dbl aggressively" },
+          { id: "imp4", text: "MPs: play with the field — favour the higher-probability outcome" },
+          { id: "imp5", text: "Cautious: don't Dbl part-scores into game unless 100% it's off" },
+          { id: "imp6", text: "Cautious: don't sacrifice unless confident you're only 1 off — a phantom sac is lethal" },
+          { id: "imp7", text: "Cautious: don't bid grand slams unless 100% making; don't open 3-level on a poor suit/hand" },
+          { id: "imp8", text: "Bullish: bid tight vulnerable games; at favourable vul, push opps to the 3 level" },
+        ],
+      },
     ],
   },
 
@@ -39,6 +82,38 @@ const CHECKLISTS = {
           { id: "dc2", text: "Treat it as a play problem handed to you on paper" },
           { id: "dc3", text: "Review the auction — what's bid, what's not" },
           { id: "dc4", text: "Analyse the opening lead — length, honor, shortness?" },
+        ],
+      },
+      {
+        title: "Pre-play evaluation",
+        items: [
+          { id: "dcp1", text: "Count points for us and the defenders" },
+          { id: "dcp2", text: "Count our winners and losers" },
+          { id: "dcp3", text: "Use info from opps' bidding and passing" },
+          { id: "dcp4", text: "Use info from the opening lead" },
+          { id: "dcp5", text: "Work out likely suit splits and where opps' high cards sit" },
+        ],
+      },
+      {
+        title: "Design the play",
+        items: [
+          { id: "dcp6", text: "Tricks to create = contract − winners" },
+          { id: "dcp7", text: "Tools: ruff in short hand, create shortage for a ruff, cross-ruff, finesse" },
+          { id: "dcp8", text: "Look for loser-on-loser elimination, squeeze, or throw-in" },
+          { id: "dcp9", text: "Confirm entries for the planned play" },
+          { id: "dcp10", text: "Decide when and how to draw trumps" },
+        ],
+      },
+      {
+        title: "Playing it out",
+        items: [
+          { id: "dcp11", text: "Don't be afraid to draw trumps even on a misfit" },
+          { id: "dcp12", text: "If cross-ruffing, set up side suits first" },
+          { id: "dcp13", text: "Play safe / the percentages — allow for 4-1 or 3-0 splits when a finesse is on" },
+          { id: "dcp14", text: "If drawing trumps, make sure you have no suit losers in the short-trump hand" },
+          { id: "dcp15", text: "Find losers in the long hand — discard them on dummy's winners" },
+          { id: "dcp16", text: "In NT, if they lead your hidden 5-card suit, still play the hand properly" },
+          { id: "dcp17", text: "If the outcome is fixed, try to fool the opps and sneak a trick" },
         ],
       },
     ],
@@ -188,6 +263,39 @@ const CHECKLISTS = {
         items: [
           { id: "df20", text: "Commit the first few cards from partner + declarer to memory" },
           { id: "df21", text: "Decide now which spot cards in which suits will matter" },
+        ],
+      },
+      {
+        title: "Defensive evaluation",
+        items: [
+          { id: "dfp1", text: "REAP — Zia update" },
+          { id: "dfp2", text: "In competitive auctions, weigh partner's bids — especially the no-bids" },
+          { id: "dfp3", text: "At trick 1, fix declarer's and partner's points and shape" },
+        ],
+      },
+      {
+        title: "Defensive play",
+        items: [
+          { id: "dfp4", text: "Changing suit: high discourages, low encourages the same-suit return" },
+          { id: "dfp5", text: "Partner's discouraging opening lead → think about where his values are" },
+        ],
+      },
+      {
+        title: "Leads",
+        items: [
+          { id: "dfp6", text: "Lead a trump if opps are playing in their second suit (cut dummy's ruffs)" },
+          { id: "dfp7", text: "Lead the ace of our suit if you have it — don't underlead it" },
+          { id: "dfp8", text: "Don't lead trumps on a misfit unless it reduces ruffing" },
+        ],
+      },
+      {
+        title: "Signals & declarer set-ups",
+        items: [
+          { id: "dfp9", text: "Give and look for all defensive signals" },
+          { id: "dfp10", text: "When signalling, don't make dummy's cards high" },
+          { id: "dfp11", text: "Don't make dummy high or give declarer discards — if you must, take your tricks" },
+          { id: "dfp12", text: "Careful cashing winners at the end unless you know you won't set up declarer" },
+          { id: "dfp13", text: "Always reduce dummy's trumps if a short-suit ruff is possible" },
         ],
       },
     ],
