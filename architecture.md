@@ -78,11 +78,11 @@ No backend. Two in-memory + one persisted structure.
 The **seeded** source of truth. User edits never mutate this object — they live in `localStorage["bhm.edits.v1"]` and are applied at render time via `applyEdits(sectionKey)`.
 ```js
 {
-  auction:        { title, subtitle, groups: [{ title, items: [{id, text}] }] },
-  declarerCommon: { ... },   // 4 items always shown in declarer analysis
-  declarerNT:     { ... },   // 10 items, shown when NT branch picked
-  declarerSuit:   { ... },   // 12 items, shown when Suit branch picked
-  defender:       { ... },   // 21 items, unified
+  auction:        { title, subtitle, groups: [{ title, items: [{id, text}] }] },  // shared — bidding + scoring
+  declarerCommon: { ... },   // always shown in declarer analysis (both branches)
+  declarerNT:     { ... },   // shown when NT branch picked
+  declarerSuit:   { ... },   // shown when Suit branch picked
+  defender:       { ... },   // unified defender analysis
 }
 ```
 
