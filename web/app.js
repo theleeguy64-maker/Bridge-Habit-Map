@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.4.0";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.5.0";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -116,7 +116,7 @@ function applyEdits(sectionKey) {
       });
     }
 
-    return { title: g.title, items, _sectionKey: sectionKey };
+    return { title: g.title, items, display: !!g.display, _sectionKey: sectionKey };
   });
 
   return { groups };
@@ -206,14 +206,14 @@ function el(tag, attrs = {}, ...kids) {
 
 function clear() { app.innerHTML = ""; }
 
-function header(crumb, onBack) {
+function header(title, onBack) {
   const top = el("div", { class: "top" });
   if (onBack) {
     top.append(el("button", { class: "btn-back", onclick: onBack }, "← Back"));
   } else {
     top.append(el("div", {}, ""));
   }
-  top.append(el("div", { class: "crumbs" }, crumb || ""));
+  top.append(el("div", { class: "header-title" }, title || ""));
   top.append(el("div", {}, ""));
   return top;
 }
@@ -253,7 +253,6 @@ function renderHome() {
         onclick: renderHistory,
       }, "History →")
     ),
-    el("div", { class: "version-tag-strip" }, "v" + APP_VERSION),
   );
 }
 
@@ -324,12 +323,6 @@ function renderAuction() {
                     : session.role === "defender" ? "Defender"
                     : "Auction";
   app.append(header(headerLabel, renderHome));
-  app.append(
-    el("div", { class: "phase-head" },
-      el("div", { class: "phase-name" }, session.role === "auction" ? "Drill" : "Phase 1 of 2"),
-      el("div", { class: "phase-title" }, "Auction")
-    )
-  );
 
   renderSectionCols("auction");
 
@@ -439,7 +432,7 @@ function renderSection(sectionKey, parent) {
     const groupEl = el("div", { class: "group" });
     if (g.title) groupEl.append(el("div", { class: "group-title" }, g.title));
     for (const item of g.items) {
-      groupEl.append(renderItem(sectionKey, g.title, item));
+      groupEl.append(renderItem(sectionKey, g.title, item, g.display));
     }
     if (editMode) {
       groupEl.append(renderAddItemBar(sectionKey, g.title));
@@ -456,8 +449,15 @@ function renderSectionCols(sectionKeys) {
   app.append(cols);
 }
 
-function renderItem(sectionKey, groupTitle, item) {
+function renderItem(sectionKey, groupTitle, item, displayOnly) {
   const done = !!session?.ticks[item.id];
+
+  if (!editMode && displayOnly) {
+    return el("div", { class: "item item-display" },
+      el("div", { class: "dot" }),
+      el("div", { class: "item-text" }, item.text)
+    );
+  }
 
   if (editMode && editingItemId === item.id) {
     return renderInlineEditor(sectionKey, groupTitle, item);
@@ -729,5 +729,8 @@ function renderHistory() {
 }
 
 // ---------- Boot ----------
+
+const footer = document.getElementById("app-footer");
+if (footer) footer.textContent = "v" + APP_VERSION;
 
 renderHome();

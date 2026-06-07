@@ -72,14 +72,26 @@ html, body {
   padding: 12px 4px;
   margin-bottom: 8px;
 }
+.top > :first-child,
+.top > :last-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.top > .btn-back {
+  text-align: left;
+}
 .top h1 {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
-.top .crumbs {
-  color: var(--text-dim);
-  font-size: 13px;
+.top .header-title {
+  flex: 1;
+  text-align: center;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .btn-back {
   background: none;
@@ -213,20 +225,44 @@ html, body {
   text-decoration-color: var(--text-dim);
 }
 .tick {
-  flex: 0 0 18px;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border);
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 1px;
-  transition: background 0.12s, border-color 0.12s;
+  box-shadow: 0 0 0 1px rgba(123, 104, 238, 0.25), 0 0 6px rgba(123, 104, 238, 0.35);
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
 }
 .item.done .tick {
   background: var(--accent);
   border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(123, 104, 238, 0.6);
+}
+
+/* Display-only rows (Strategy / Bids to remember / Scoring) — bullet dot, not tappable */
+.item-display {
+  cursor: default;
+}
+.item-display:active { background: var(--surface); }
+.dot {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.dot::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text-dim);
 }
 .item.done .tick::after {
   content: "✓";
@@ -350,6 +386,13 @@ html, body {
   color: var(--text-muted);
   font-size: 11px;
   margin-top: 12px;
+  letter-spacing: 0.05em;
+}
+.app-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 14px 0 20px;
   letter-spacing: 0.05em;
 }
 
