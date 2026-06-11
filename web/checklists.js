@@ -227,6 +227,7 @@ const CHECKLISTS = {
       {
         title: "Opening lead (if on lead)",
         items: [
+          { id: "df14a", text: "Determine if lead should be passive or aggressive" },
           { id: "df15", text: "Avoid suits opponents bid; favour unbid suits" },
           { id: "df16", text: "vs NT: 4th best from longest, or top of sequence" },
           { id: "df17", text: "vs suit: K from AK, top of doubleton; don't underlead an ace" },
