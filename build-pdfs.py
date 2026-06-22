@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Generate 4 print-friendly PDFs from web/checklists.js.
 
-Sheets:
-  auction.pdf       — shared auction checklist
-  declarer-nt.pdf   — auction + declarer-common + declarer-NT
-  declarer-suit.pdf — auction + declarer-common + declarer-Suit
-  defender.pdf      — auction + defender
+Sheets (mirror the app's two-phase screen flow — the auction phase is
+its own screen, so the auction sheet stands alone and the analysis
+sheets start at their own groups, not repeating Habits/Strategy/Bids):
+  auction.pdf       — shared auction checklist (Habits / Strategy / Bids)
+  declarer-nt.pdf   — declarer-common + declarer-NT
+  declarer-suit.pdf — declarer-common + declarer-Suit
+  defender.pdf      — defender
 
 Each is one page, white bg, black text, big square checkboxes.
 """
@@ -177,7 +179,6 @@ def build():
             "file": "declarer-nt.pdf",
             "title": "Declarer Sheet — Notrump",
             "sections": [
-                {"label": "Auction", "data": cl["auction"]},
                 {"label": "Plan — discipline & lead", "data": cl["declarerCommon"]},
                 {"label": "Plan — Notrump", "data": cl["declarerNT"]},
             ],
@@ -186,7 +187,6 @@ def build():
             "file": "declarer-suit.pdf",
             "title": "Declarer Sheet — Suit",
             "sections": [
-                {"label": "Auction", "data": cl["auction"]},
                 {"label": "Plan — discipline & lead", "data": cl["declarerCommon"]},
                 {"label": "Plan — Suit", "data": cl["declarerSuit"]},
             ],
@@ -195,7 +195,6 @@ def build():
             "file": "defender.pdf",
             "title": "Defender Sheet",
             "sections": [
-                {"label": "Auction", "data": cl["auction"]},
                 {"label": "Defense plan", "data": cl["defender"]},
             ],
         },
