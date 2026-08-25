@@ -1,7 +1,7 @@
 // Bridge Habit Map — app shell
 // Screens: home → auction → routing? → declarer (NT/Suit) | defender → log → home
 
-const APP_VERSION = "0.6.0";  // keep in lockstep with VERSION file (lee version minor/major)
+const APP_VERSION = "0.6.1";  // keep in lockstep with VERSION file (lee version minor/major)
 const STORAGE_KEY = "bhm.history.v1";
 const EDITS_KEY = "bhm.edits.v1";
 const app = document.getElementById("app");
@@ -49,13 +49,19 @@ function saveHand(record) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(h.slice(0, 200)));
 }
 
+// A hand whose every item was deleted in the editor logs total: 0 — guard the divide.
+function pctOf(done, total) {
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+
 function recentCompletionPct(days = 7) {
   const cutoff = Date.now() - days * 86400000;
   const recent = loadHistory().filter(h => h.at >= cutoff);
   if (!recent.length) return null;
   const total = recent.reduce((s, h) => s + h.total, 0);
+  if (!total) return null;
   const done = recent.reduce((s, h) => s + h.done, 0);
-  return { pct: Math.round((done / total) * 100), hands: recent.length };
+  return { pct: pctOf(done, total), hands: recent.length };
 }
 
 // ---------- Edits (localStorage overrides on top of CHECKLISTS) ----------
@@ -108,12 +114,13 @@ function applyEdits(sectionKey) {
 
     // Apply order if set; unknown ids (newly added since order was set) go to the end
     if (Array.isArray(patch.order) && patch.order.length) {
+      // Rank every item BEFORE sorting — reading items.indexOf() inside the
+      // comparator makes it inconsistent, because the indices shift mid-sort.
       const idx = new Map(patch.order.map((id, i) => [id, i]));
-      items.sort((a, b) => {
-        const ai = idx.has(a.id) ? idx.get(a.id) : 999 + items.indexOf(a);
-        const bi = idx.has(b.id) ? idx.get(b.id) : 999 + items.indexOf(b);
-        return ai - bi;
-      });
+      const rank = new Map(items.map(
+        (it, i) => [it.id, idx.has(it.id) ? idx.get(it.id) : patch.order.length + i]
+      ));
+      items.sort((a, b) => rank.get(a.id) - rank.get(b.id));
     }
 
     return { title: g.title, items, display: !!g.display, _sectionKey: sectionKey };
@@ -345,28 +352,6 @@ function renderAuction() {
     ),
     el("div", { class: "actions" },
       el("button", { class: "btn btn-ghost", onclick: renderHome }, "Cancel"),
-    )
-  );
-}
-
-// ---------- Screen: Routing (declarer-only — won the contract?) ----------
-
-function renderRouting() {
-  clear();
-  app.append(header("Declarer", renderAuction));
-  app.append(
-    el("div", { class: "phase-head" },
-      el("div", { class: "phase-name" }, "After the auction"),
-      el("div", { class: "phase-title" }, "Did we win the contract?")
-    ),
-    el("div", { class: "routing" },
-      el("div", { class: "pair" },
-        el("button", { class: "btn btn-primary", onclick: () => renderAnalysis() }, "Yes — plan"),
-        el("button", {
-          class: "btn",
-          onclick: () => { session.role = "defender"; renderAnalysis(); }
-        }, "No — defend"),
-      )
     )
   );
 }
@@ -616,21 +601,24 @@ function toggle(id) {
 
 // ---------- Finish + Log ----------
 
+// Display-only groups render as dots with no tap handler, so their items can never
+// be ticked — counting them would cap every hand's score below 100%.
 function sectionItemIds(sectionKey) {
   const ids = [];
-  applyEdits(sectionKey).groups.forEach(g => g.items.forEach(i => ids.push(i.id)));
+  applyEdits(sectionKey).groups.forEach(g => {
+    if (g.display) return;
+    g.items.forEach(i => ids.push(i.id));
+  });
   return ids;
 }
 
 function allItemsForSession() {
   const ids = sectionItemIds("auction");
-  if (session.role === "auction") {
-    // Auction-only drill — no analysis section
-  } else if (session.role === "declarer") {
+  if (session.role === "declarer") {
     ids.push(...sectionItemIds("declarerCommon"));
     if (session.declarerBranch === "nt") ids.push(...sectionItemIds("declarerNT"));
     else if (session.declarerBranch === "suit") ids.push(...sectionItemIds("declarerSuit"));
-  } else {
+  } else if (session.role === "defender") {
     ids.push(...sectionItemIds("defender"));
   }
   return ids;
@@ -662,7 +650,7 @@ function verdict(pct) {
 function renderLog(record) {
   clear();
   app.append(header("Hand complete", null));
-  const pct = Math.round((record.done / record.total) * 100);
+  const pct = pctOf(record.done, record.total);
   app.append(
     el("div", { class: "log-summary" },
       el("div", { class: "pct" }, pct + "%"),
@@ -696,12 +684,11 @@ function renderHistory() {
 
   const card = el("div", { class: "card" });
   for (const row of h.slice(0, 50)) {
-    const pct = Math.round((row.done / row.total) * 100);
+    const pct = pctOf(row.done, row.total);
     const when = new Date(row.at);
     const label = `${when.toLocaleDateString()} ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     const tag = row.role === "declarer"
       ? `Declarer${row.branch ? " (" + row.branch.toUpperCase() + ")" : ""}`
-      : row.role === "auction" ? "Auction drill"
       : "Defender";
     card.append(
       el("div", { class: "history-row" },

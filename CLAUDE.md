@@ -10,7 +10,7 @@
 ## What It Does
 Single-user PWA for building the habit of running a fixed mental checklist on every bridge hand. Two process sheets — **Declarer** and **Defender** — each have a shared Auction phase followed by an Analysis phase (pre-trick-1 plan). User taps through items at the table; app logs completion % per hand. Pure local-first: no backend, no accounts, history in `localStorage`.
 
-A built-in **editor** ("Edit Declarer sheet" / "Edit Defender sheet" on Home) lets the user move / edit / delete / add items per group. Edits are stored as patches in `localStorage["bhm.edits.v1"]` and applied over the seeded `web/checklists.js` at render time — so the seeded source is never mutated and a "Reset all edits" wipes back to it in one tap.
+A built-in **editor** — reached from the screen being edited ("Edit Auction sheet" on the Auction screen, "Edit Declarer sheet" / "Edit Defender sheet" on the Analysis screen), not from Home — lets the user move / edit / delete / add items per group. Edits are stored as patches in `localStorage["bhm.edits.v1"]` and applied over the seeded `web/checklists.js` at render time — so the seeded source is never mutated and a "Reset all edits" wipes back to it in one tap.
 
 ## Quick Start
 ```bash
@@ -45,6 +45,7 @@ Bridge Habit Map/
 ├── server_base.py             # From ~/Claude Generic template
 ├── certs/                     # Self-signed cert for iOS install (empty until generated)
 ├── build-pdfs.py              # Generates 4 A4 print PDFs from web/checklists.js
+├── build-combined-pdf.py      # Same 4 sheets as one landscape PDF (reuses build-pdfs.py)
 ├── pdfs/                      # Print-friendly sheets (auction/declarer-nt/declarer-suit/defender)
 ├── architecture.md
 ├── checklists-draft.md        # Source-tagged scrape dump used to seed the lists
@@ -63,6 +64,7 @@ Bridge Habit Map/
 | `web/app.js`         | Screen renderers + session/history; unregisters stale SWs    |
 | `web/styles.css`     | Standard palette in `:root`, all UI styling                  |
 | `build-pdfs.py`      | Generates the 4 print PDFs from `web/checklists.js`.         |
+| `build-combined-pdf.py` | One landscape PDF of all 4 sheets; imports `build-pdfs.py`. |
 | `server.py`          | Static server config. Set port, web dir, version prefix.     |
 | `architecture.md`    | Screen flow, data model, architectural decisions             |
 | `checklists-draft.md`| Source-tagged scrape dump (curation reference, not runtime)  |
@@ -79,6 +81,7 @@ python3 server.py
 
 # Regenerate print PDFs after editing web/checklists.js
 python3 build-pdfs.py
+python3 build-combined-pdf.py
 
 # Smoke test in browser
 open http://localhost:8791

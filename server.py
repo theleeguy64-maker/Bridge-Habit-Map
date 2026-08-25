@@ -21,7 +21,6 @@ BASE_DIR = Path(__file__).parent.resolve()
 
 class HabitMapHandler(LocalAppHandler):
     WEB_DIR = BASE_DIR / "web"
-    BLOCKED_FILES = {"sw.js.map"}
     PORT = PORT
     VERSION_PREFIX = "habit-map-v"
     CERTS_DIR = BASE_DIR / "certs"

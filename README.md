@@ -29,8 +29,9 @@ chrome. There's no offline mode, so you need a signal at the table.
 
 ## Editing the checklists
 
-The app has a built-in editor — "Edit Declarer sheet" / "Edit Defender sheet"
-on the home screen. Move, reword, delete, or add items. Your changes are saved
+The app has a built-in editor, reached from the sheet you're already on:
+"Edit Auction sheet" on the auction screen, "Edit Declarer sheet" or "Edit
+Defender sheet" on the plan screen. Move, reword, delete, or add items. Your changes are saved
 as a patch layered over the shipped list, so "Reset all edits" always gets you
 back to the original in one tap.
 

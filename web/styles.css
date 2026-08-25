@@ -333,20 +333,6 @@ html, body {
 }
 
 /* Routing question */
-.routing {
-  text-align: center;
-  padding: 30px 20px;
-}
-.routing p {
-  font-size: 14px;
-  margin-bottom: 18px;
-}
-.routing .pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
 /* Log summary */
 .log-summary {
   text-align: center;
@@ -381,13 +367,6 @@ html, body {
 .history-row .when { color: var(--text-dim); }
 .history-row .pct-mini { font-weight: 600; }
 
-.version-tag-strip {
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 11px;
-  margin-top: 12px;
-  letter-spacing: 0.05em;
-}
 .app-footer {
   text-align: center;
   color: var(--text-muted);
@@ -416,10 +395,6 @@ html, body {
   padding: 6px 4px;
 }
 .btn-link:active { color: var(--accent); }
-.edit-strip-sep {
-  color: var(--text-muted);
-}
-
 .section-divider {
   font-size: 13px;
   font-weight: 700;
