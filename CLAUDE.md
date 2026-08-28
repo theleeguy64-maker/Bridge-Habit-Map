@@ -8,9 +8,7 @@
 - **Weight**: Light (message threshold 25)
 
 ## What It Does
-Single-user PWA for building the habit of running a fixed mental checklist on every bridge hand. Two process sheets — **Declarer** and **Defender** — each have a shared Auction phase followed by an Analysis phase (pre-trick-1 plan). User taps through items at the table; app logs completion % per hand. Pure local-first: no backend, no accounts, history in `localStorage`.
-
-A built-in **editor** — reached from the screen being edited ("Edit Auction sheet" on the Auction screen, "Edit Declarer sheet" / "Edit Defender sheet" on the Analysis screen), not from Home — lets the user move / edit / delete / add items per group. Edits are stored as patches in `localStorage["bhm.edits.v1"]` and applied over the seeded `web/checklists.js` at render time — so the seeded source is never mutated and a "Reset all edits" wipes back to it in one tap.
+At the bridge table the user opens one of two process sheets — **Declarer** or **Defender** — and taps through a fixed checklist for the hand, a shared Auction phase then an Analysis phase before trick one; the app logs completion % per hand into `localStorage["bhm.history.v1"]`, which is the whole point, since the product is the habit rather than the result. Items come from the seeded `web/checklists.js`, and the user's own edits are kept apart from it: the editor is reached from the screen being edited rather than from Home, and writes patches to `localStorage["bhm.edits.v1"]` that are applied over the seed at render time — so the seed is never mutated and "Reset all edits" restores it in one tap. Deliberately absent: **no backend, no accounts, no sync** — one user, one device, and history that lives only in that browser.
 
 ## Quick Start
 ```bash
