@@ -1,0 +1,20 @@
+# Bridge Habit Map — deliverable predicate.
+#
+# DERIVED BY CLAUDE 2026-08-29 from the repository layout, NOT from a project
+# summary and NOT dictated by Lee. It is a starting predicate so that
+# scope-creep alerting has something to measure here; it is a guess about what
+# this repo is FOR, made from what the tree shows.
+#
+# THIS FILE IS NOT A PROJECT SUMMARY and must never be counted as one. The
+# summary format (~/.claude/templates/project-summary-format.md) has seven
+# clauses, two of which cannot be derived from code at all: what the project
+# deliberately does NOT have, and who uses it at what level.
+#
+# The product here is the browser app. pdfs/ are source material, server.py is the local dev server.
+#
+# MEASURED AT DECLARATION over the full history: 4145 added, 2004
+# deliverable, 48.35%. A predicate stuck at 0% or 100% across weeks matches
+# nothing or everything and is wrong — that is the check that does not need a
+# summary. Correct the globs when this repo's ratio looks implausible.
+
+web/*
